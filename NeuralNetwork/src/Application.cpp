@@ -60,9 +60,9 @@ void TestingPerceptronANDExample()
 
 	for(size_t i=0;i<8;i++)
 	{
-		inputs[0] = (i >> 0) & 0x0001;
-		inputs[1] = (i >> 1) & 0x0001 ;
-		inputs[2] = (i >> 2) & 0x0001;
+		inputs[0] = (double)((i >> 0) & 0x0001);
+		inputs[1] = (double)((i >> 1) & 0x0001);
+		inputs[2] = (double)((i >> 2) & 0x0001);
 
 		double target = inputs[0] && inputs[1] && inputs[2];
 		if(i>1)
@@ -152,7 +152,7 @@ void GetXORTrainingData(TrainingSet& trainingData, std::vector<Targets>& targetS
 
 int NeuralNetsXOR()
 {
-	std::vector<int> neuronCounts = { 2,4,4,1 };
+	std::vector<int> neuronCounts = { 2,4,1 };
 	NeuralNetwork nn(neuronCounts);
 	Inputs inputs(2);
 	Targets targets(1);
@@ -162,16 +162,8 @@ int NeuralNetsXOR()
 	std::vector<Targets> targetSet;
 	GetXORTrainingData(trainingData,targetSet);
 
-
-		/*for (int i = 0; i < 1000; i++)
-		{
-			int index = (int)(Random::get() * 10) % trainingData.size();
-			Inputs &input = trainingData[index];
-			Targets &target = targetSet[index];
-			nn.FeedForward(input);
-			nn.BackPropogate(target);			
-		}*/
-	nn.SetDynamicLearningRate(true);
+	nn.SetLearningRate(0.2);
+	nn.SetErrorThreshold(0.090);
 	nn.fit(trainingData, targetSet);
 
 	system("cls");
@@ -235,73 +227,9 @@ void printVector(vector<vector<double>>const& vector)
 	writer.close();
 }
 
-void ReadCSV()
-{/*
-	for (int i = 0; i < 784; i++)
-	{
-		std::getline(reader, value, ',');
-		inputs.push_back(atof(value.c_str()));
-	}
-	std::getline(reader, value, '\n');
-	inputs.push_back(atof(value.c_str()));
 
-	trainingdata.push_back(inputs);
-	inputs.clear();*/
-}
 int main()
 {
-	ifstream reader("mnist_train.csv");
-	string line="";
-	TrainingSet trainingdata;
-	TargetLabels labels;
-
-	Inputs inputs;
-	Targets targets;
-
-	cout << "Reading Data from CSV file \n";
-	while (reader.good()) {
-		string value = "";
-		for (int i = 0; i < 784; i++)
-		{
-			std::getline(reader, value, ',');
-			double data = atof(value.c_str());
-			if (i == 0)
-			{
-				for (int k = 0; k <= 9; k++)
-					if (k == (int)data)
-						targets.push_back(1);
-					else
-						targets.push_back(0);
-				labels.push_back(targets);
-				targets.clear();
-			}
-			else
-				inputs.push_back(data/255);
-		}
-		std::getline(reader, value, '\n');
-		inputs.push_back(atof(value.c_str()));
-		if(inputs.size()>0)
-			trainingdata.push_back(inputs);
-		inputs.clear();
-	}	
-	reader.close();
-	trainingdata.pop_back();
-	cout << "INITIALIZING NEURAL NETWORK"<<endl;
-	NeuralNetwork nn({ (int)trainingdata[0].size(),10,10,10 });
-
-	nn.SetDynamicLearningRate(true);
-
-	cout << "TRAINING NEURAL NETWORK" << endl;
-	nn.fit(trainingdata,labels);
-
-	cout << "SAVING THE WEIGHTS TO CSV" << endl;
-	nn.Save("MNIST_TRIAL_1.csv");
-
-	cout << "TESTING NEURAL NETWORK" << endl;
-	auto predictions = nn.predict(trainingdata);
-
-	printVector(*predictions.get());
-
-	std::cin.get();
+	NeuralNetsXOR();
 	return 0;
 }

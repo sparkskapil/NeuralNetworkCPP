@@ -2,6 +2,7 @@
 #pragma once
 
 #include "NeuralNetwork.h"
+#include <map>
 
 namespace NeuralNetworks
 {
@@ -12,7 +13,7 @@ namespace NeuralNetworks
 		NeuralNetwork(std::vector<int> const& NeuronCounts);
 		~NeuralNetwork();
 		void FeedForward(Inputs const&) override;
-		void BackPropogate(Targets const&) override;
+		Error BackPropogate(Targets const&) override;
 		
 		void SetLearningRate(double = 0.1);
 		void SetErrorThreshold(double = 0.01);
@@ -23,21 +24,30 @@ namespace NeuralNetworks
 		
 		void PrintOutput()const;
 		void Save(std::string const& fileName)const;
+		
+		void mutate(double mutationRate = 0.1)
+		{
+			for (auto weight : weights_)
+			{
+				weight->mutate(mutationRate);
+			}
+		}
 
 	protected:
 		double Activation(double)const override;
 		double Derivative(double)const;
 		void InitializeWeights() override;
 		void UpdateLearningRate();
+		Error calculateMeanError();
 
 	private:
 		Layers layers_;
 		std::vector<Matrix *> weights_;
-			
+		std::map<int, double> indexVsErrorMap_;
 		double learningRate_;
 		double lrMinLimit_;
 		double lrMaxLimit_;
-		double dynamicLREnabled_;
+		bool dynamicLREnabled_;
 
 		size_t inputLayerIndex;
 		size_t outputLayerIndex;

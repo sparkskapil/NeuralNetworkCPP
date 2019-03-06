@@ -59,6 +59,16 @@ namespace NeuralNetworks
 		learningRate_ = lrMinLimit_ + (lrMaxLimit_ - lrMinLimit_)*offset;
 	}
 
+	Error NeuralNetwork::calculateMeanError()
+	{
+		Error sum = 0;
+		for (auto indexVsError : indexVsErrorMap_)
+		{
+			sum += indexVsError.second;
+		}
+		return sum/indexVsErrorMap_.size();
+	}
+
 	void NeuralNetwork::FeedForward(Inputs const& input)
 	{
 		//Update Input Layer
@@ -76,6 +86,7 @@ namespace NeuralNetworks
 			std::vector<double>& firstLayer = layers_[i];
 			std::vector<double>& secondLayer = layers_[i+1];
 			auto& weights = *weights_[i];
+			firstLayer[firstLayer.size() - 1] = 1;
 			Matrix layer1(firstLayer);
 			Matrix layer2 = weights*layer1.Transpose();
 			std::function<double(double)> mapper = std::bind(&NeuralNetwork::Activation,this,_1);
@@ -94,13 +105,13 @@ namespace NeuralNetworks
 		return activatedVal * (activatedVal - 1);
 	}
 
-	void NeuralNetwork::BackPropogate(Targets const& targets)
+	Error NeuralNetwork::BackPropogate(Targets const& targets)
 	{
 		Layer& output = layers_[outputLayerIndex];
 		Matrix Target = targets;	
 		Matrix Output = output;	
 		Matrix currentError = (Target - Output).Transpose();
-		meanError_ = currentError.GetAbsoluteMean();
+		double error = currentError.GetAbsoluteMean();
 		UpdateLearningRate();
 
 		for (int i = outputLayerIndex-1; i >= 0; i--)
@@ -122,7 +133,7 @@ namespace NeuralNetworks
 			//Update Weights
 			*weights_[i] = *weights_[i] - deltaWeight;
 		}
-		//meanError_ /= iterations_;
+		return error;
 	}
 	void NeuralNetwork::SetLearningRate(double rate)
 	{
@@ -148,10 +159,16 @@ namespace NeuralNetworks
 			Inputs &input = trainingData[index];
 			Targets &target = labels[index];
 			this->FeedForward(input);
-			this->BackPropogate(target);
+			double error = this->BackPropogate(target);
+			if (indexVsErrorMap_.find(index) == indexVsErrorMap_.end())
+				indexVsErrorMap_.insert(std::make_pair(index, error));
+			else
+				indexVsErrorMap_[index] = error;
+			meanError_ = calculateMeanError();
 			++iterations_;
-		} while (meanError_ > errorThreshold_);
+		} while (meanError_ > errorThreshold_ || indexVsErrorMap_.size() < trainingData.size());
 	}
+
 	MultiPredictions NeuralNetwork::predict(TestingSet & testingData)
 	{
 		MultiPredictions predictions = std::make_shared<TargetLabels>();
@@ -178,6 +195,7 @@ namespace NeuralNetworks
 		}
 		std::cout << '\n';
 	}
+
 	void NeuralNetwork::Save(std::string const& fileName) const
 	{
 		std::ofstream writer(fileName, std::ios::app);

@@ -7,7 +7,7 @@ namespace NeuralNetworks
 	public:
 		virtual ~INeuralNetwork() = 0;
 		virtual void FeedForward(Inputs const&) = 0;
-		virtual void BackPropogate(Targets const&) = 0;
+		virtual Error BackPropogate(Targets const&) = 0;
 
 	protected:
 		virtual double Activation(double)const = 0;

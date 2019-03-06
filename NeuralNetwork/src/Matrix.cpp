@@ -52,6 +52,25 @@ namespace NeuralNetworks
 
 	///==================================================================================
 
+	Matrix::Matrix(Matrix &&matrix)
+	{
+		this->rows_ = matrix.rows_;
+		this->cols_ = matrix.cols_;
+		this->mat_ = std::move(matrix.mat_);
+	}
+
+	///==================================================================================
+
+	Matrix & Matrix::operator=(Matrix &&matrix)
+	{
+		this->rows_ = matrix.rows_;
+		this->cols_ = matrix.cols_;
+		this->mat_ = std::move(matrix.mat_);
+		return *this;
+	}
+
+	///==================================================================================
+
 	Matrix Matrix::Transpose() const
 	{
 		Matrix transpose(this->cols_,this->rows_);
@@ -76,7 +95,7 @@ namespace NeuralNetworks
 			{
 				matSum.mat_[i][j] = mat_[i][j] + matrix.mat_[i][j];
 			}
-		return matSum;
+		return std::move(matSum);
 	}
 
 	///==================================================================================
@@ -93,7 +112,7 @@ namespace NeuralNetworks
 				for(unsigned k=0;k<matrix.cols_;k++)
 					matProduct.mat_[i][k] += mat_[i][j] * matrix.mat_[j][k];
 			}
-		return matProduct;
+		return std::move(matProduct);
 	}
 
 	///==================================================================================
@@ -104,7 +123,7 @@ namespace NeuralNetworks
 		for(unsigned i=0;i<rows_;i++)
 			for(unsigned j=0;j<cols_;j++)
 				matrix.mat_[i][j] = mat_[i][j]*factor;
-		return matrix;
+		return std::move(matrix);
 	}
 
 	Matrix Matrix::Multiply(std::vector<double>&vector) const
@@ -116,7 +135,7 @@ namespace NeuralNetworks
 			for (int i = 0; i < rows_; i++)
 				result.mat_[i][j] = mat_[i][j] * vector[i];
 
-		return result;
+		return std::move(result);
 	}
 
 	///==================================================================================
@@ -139,7 +158,7 @@ namespace NeuralNetworks
 				if(i==j)
 					identity.mat_[i][j] = 1;
 			}
-		return identity;
+		return std::move(identity);
 	}
 
 	///==================================================================================
@@ -257,6 +276,9 @@ namespace NeuralNetworks
 			}
 		}
 	}
+
+	///==================================================================================
+
 	double Matrix::GetElementSum() const
 	{
 		double sum = 0;
@@ -265,6 +287,9 @@ namespace NeuralNetworks
 				sum += cell;
 		return sum;
 	}
+
+	///==================================================================================
+
 	double Matrix::GetAbsoluteSum() const
 	{
 		double sum = 0;
@@ -274,10 +299,14 @@ namespace NeuralNetworks
 		return sum;
 	}
 
+	///==================================================================================
+
 	double Matrix::GetAbsoluteMean() const
 	{
 		return GetAbsoluteSum()/(rows_*cols_);
 	}
+
+	///==================================================================================
 
 	void Matrix::SaveToFile(std::ofstream &out) const
 	{
@@ -290,9 +319,26 @@ namespace NeuralNetworks
 		out << '\n';
 	}
 
+	///==================================================================================
+
 	void Matrix::LoadFromFile(std::ifstream &) const
 	{
 	}
+
+	///==================================================================================
+
+	void Matrix::mutate(double mutationRate)
+	{
+		for(auto& rows:mat_)
+			for (auto& cell : rows)
+			{
+				if (Random::get() < mutationRate)
+					cell = Random::get();
+			}
+	}
+
+	///==================================================================================
+
 
 }
 
