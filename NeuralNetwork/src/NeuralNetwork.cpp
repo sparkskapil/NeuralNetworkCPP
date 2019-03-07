@@ -3,6 +3,8 @@
 #include "Random.h"
 #include <iostream>
 #include <fstream>
+#include <string>
+
 namespace NeuralNetworks
 {
 	using namespace std::placeholders;
@@ -69,6 +71,53 @@ namespace NeuralNetworks
 		return sum/indexVsErrorMap_.size();
 	}
 
+	void NeuralNetwork::LoadLayers(std::ifstream &reader)
+	{
+		layers_.clear(); 
+		while (reader.peek() != '\n')
+		{
+			int num;
+			reader >> num;
+			if (reader.peek() == ',')
+				reader.ignore();
+			Layer layer(num);
+			layers_.push_back(layer);
+		}
+		reader.ignore();
+	}
+
+	void NeuralNetwork::LoadWeights(std::ifstream &reader)
+	{
+		for (auto& weight : weights_)
+		{
+			delete weight;
+			weight = nullptr;
+		}
+		weights_.clear();
+
+		std::string num = "";
+		std::getline(reader,num);
+		weights_.resize(std::stoi(num));
+		int i = 0;
+		while (i<weights_.size())
+		{
+			std::getline(reader, num,',');
+			int rows = std::stoi(num);
+			std::getline(reader, num,',');
+			int cols = std::stoi(num);
+			weights_[i] = new Matrix(rows, cols);
+			weights_[i]->LoadFromFile(reader);
+			i++;
+		}
+	}
+
+	void NeuralNetwork::LoadInfo(std::ifstream &reader)
+	{
+		reader >> meanError_;
+		reader >> errorThreshold_;
+		reader >> iterations_;
+	}
+
 	void NeuralNetwork::FeedForward(Inputs const& input)
 	{
 		//Update Input Layer
@@ -114,7 +163,7 @@ namespace NeuralNetworks
 		double error = currentError.GetAbsoluteMean();
 		UpdateLearningRate();
 
-		for (size_t i = outputLayerIndex-1; i >= 0; i--)
+		for (int i = (int)outputLayerIndex-1; i >= 0; i--)
 		{
 			std::function<double(double)> mapper =
 				std::bind(&NeuralNetwork::Derivative, this, _1);
@@ -199,10 +248,45 @@ namespace NeuralNetworks
 	void NeuralNetwork::Save(std::string const& fileName) const
 	{
 		std::ofstream writer(fileName, std::ios::app);
+
+		//WRITE LAYER COUNTS IN FIRST ROW
+		writer << "Layers Info";
+		for (auto layer : layers_)
+		{
+			writer << ',' << layer.size();
+		}
+		writer << '\n';
+
+		//WRITE WEIGHT MATRICES COUNT
+		writer << "Weights Info," << weights_.size() <<'\n';
+
+		//WRITE ALL WEIGHTS OF ALL MATRICES IN EACH ROW
 		for (auto weight : weights_)
 		{
 			weight->SaveToFile(writer);
 		}
+
+		//WRITE TRAINING INFO
+		writer << "Training Info," << meanError_ << ',' << errorThreshold_ << ',' << iterations_ << '\n';
+
+		writer.close();
+	}
+	void NeuralNetwork::Load(std::string const & fileName)
+	{
+		std::ifstream reader(fileName);
+		if (!reader.is_open())
+			throw std::exception("File Not Opened!!!");
+		std::string line;
+		while (reader.good()) {
+			std::getline(reader, line, ',');
+			if (line == "Layers Info")
+				LoadLayers(reader);
+			else if (line == "Weights Info")
+				LoadWeights(reader);
+			else if (line == "Training Info")
+				LoadInfo(reader);
+		}
+		reader.close();
 	}
 	void NeuralNetwork::mutate(double mutationRate)
 	{

@@ -2,6 +2,9 @@
 #include "Random.h"
 #include <exception>
 #include <fstream>
+#include <string>
+#include <sstream>
+
 namespace NeuralNetworks
 {
 	///==================================================================================
@@ -321,8 +324,19 @@ namespace NeuralNetworks
 
 	///==================================================================================
 
-	void Matrix::LoadFromFile(std::ifstream &) const
+	void Matrix::LoadFromFile(std::ifstream &reader) 
 	{
+		for(int i=0;i<rows_;i++)
+			for (int j = 0; j < cols_; j++)
+			{
+				reader >> mat_[i][j];
+				if (reader.peek() == '\n') {
+					reader.ignore();
+					break;
+				}
+				if (reader.peek() == ',')
+					reader.ignore();
+			}
 	}
 
 	///==================================================================================

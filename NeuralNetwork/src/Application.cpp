@@ -148,6 +148,7 @@ void GetXORTrainingData(TrainingSet& trainingData, std::vector<Targets>& targetS
 	targets[0] = 0;
 	trainingData.push_back(Inputs(inputs));
 	targetSet.push_back(targets);
+
 }
 
 int NeuralNetsXOR()
@@ -163,7 +164,7 @@ int NeuralNetsXOR()
 	GetXORTrainingData(trainingData,targetSet);
 
 	nn.SetLearningRate(0.2);
-	nn.SetErrorThreshold(0.090);
+	nn.SetErrorThreshold(0.05);
 	nn.fit(trainingData, targetSet);
 
 	system("cls");

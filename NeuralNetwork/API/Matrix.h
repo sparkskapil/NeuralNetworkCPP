@@ -47,7 +47,7 @@ namespace NeuralNetworks
 		double GetAbsoluteMean() const;
 
 		void SaveToFile(std::ofstream&) const;
-		void LoadFromFile(std::ifstream&) const;
+		void LoadFromFile(std::ifstream&) ;
 
 		void mutate(double mutationRate);
 	private:
