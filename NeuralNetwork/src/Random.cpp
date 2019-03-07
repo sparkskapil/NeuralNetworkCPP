@@ -14,7 +14,7 @@ double Random::random(int min, int max)
 	static bool first = true;
 	if(first)
 	{
-		srand(time(NULL));
+		srand((unsigned)time(NULL));
 		first = false;
 	}
 

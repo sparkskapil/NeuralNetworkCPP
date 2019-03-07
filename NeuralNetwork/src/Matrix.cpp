@@ -26,7 +26,7 @@ namespace NeuralNetworks
 	Matrix::Matrix(std::vector<double> const& vector)
 	{
 		rows_ = 1;
-		cols_ = vector.size();
+		cols_ = (unsigned)vector.size();
 		mat_.resize(rows_);
 		for(unsigned i = 0;i<cols_;i++)
 		{
@@ -131,8 +131,8 @@ namespace NeuralNetworks
 		if (vector.size() != rows_)
 			throw "Incompatible Rows Size";
 		Matrix result(rows_, cols_);
-		for (int j = 0; j < cols_; j++)
-			for (int i = 0; i < rows_; i++)
+		for (unsigned j = 0; j < cols_; j++)
+			for (unsigned i = 0; i < rows_; i++)
 				result.mat_[i][j] = mat_[i][j] * vector[i];
 
 		return std::move(result);
@@ -235,8 +235,8 @@ namespace NeuralNetworks
 
 	bool Matrix::operator ==(Matrix const& matrix)const
 	{
-		for(size_t i=0;i<rows_;i++)
-			for(size_t j=0;j<cols_;j++)
+		for(unsigned i=0;i<rows_;i++)
+			for(unsigned j=0;j<cols_;j++)
 				if(mat_[i][j] != matrix[i][j])
 					return false;
 		return true;

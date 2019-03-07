@@ -24,15 +24,8 @@ namespace NeuralNetworks
 		
 		void PrintOutput()const;
 		void Save(std::string const& fileName)const;
+		void mutate(double mutationRate = 0.1);
 		
-		void mutate(double mutationRate = 0.1)
-		{
-			for (auto weight : weights_)
-			{
-				weight->mutate(mutationRate);
-			}
-		}
-
 	protected:
 		double Activation(double)const override;
 		double Derivative(double)const;

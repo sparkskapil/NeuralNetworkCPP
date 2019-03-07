@@ -46,7 +46,7 @@ namespace NeuralNetworks
 	{
 		for(size_t i=0;i<layers_.size()-1;i++)
 		{
-			Matrix *weight = new Matrix(layers_[i+1].size(),layers_[i].size());
+			Matrix *weight = new Matrix((unsigned)layers_[i+1].size(),(unsigned)layers_[i].size());
 			weight->Randomize();
 			weights_.push_back(weight);
 		}
@@ -114,7 +114,7 @@ namespace NeuralNetworks
 		double error = currentError.GetAbsoluteMean();
 		UpdateLearningRate();
 
-		for (int i = outputLayerIndex-1; i >= 0; i--)
+		for (size_t i = outputLayerIndex-1; i >= 0; i--)
 		{
 			std::function<double(double)> mapper =
 				std::bind(&NeuralNetwork::Derivative, this, _1);
@@ -202,6 +202,13 @@ namespace NeuralNetworks
 		for (auto weight : weights_)
 		{
 			weight->SaveToFile(writer);
+		}
+	}
+	void NeuralNetwork::mutate(double mutationRate)
+	{
+		for (auto weight : weights_)
+		{
+			weight->mutate(mutationRate);
 		}
 	}
 }

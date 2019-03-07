@@ -2,6 +2,6 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/NeuralNetwork/v15
-/NeuralNetwork/x64/Debug
-/x64/Debug
+/NeuralNetwork/x64
+/x64
+/.vs
