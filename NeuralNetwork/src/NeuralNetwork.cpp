@@ -98,7 +98,7 @@ namespace NeuralNetworks
 		std::string num = "";
 		std::getline(reader,num);
 		weights_.resize(std::stoi(num));
-		int i = 0;
+		size_t i = 0;
 		while (i<weights_.size())
 		{
 			std::getline(reader, num,',');
@@ -231,11 +231,12 @@ namespace NeuralNetworks
 	
 	void NeuralNetwork::PrintOutput() const
 	{
-		int i = 0;
+		size_t i = 0;
 		for (auto& neuron : layers_[0])
 		{
 			if(i<layers_[0].size()-1)
 				std::cout << neuron << '\t';
+			i++;
 		}
 		std::cout << " ==> ";
 		for (auto& layer : layers_[outputLayerIndex])

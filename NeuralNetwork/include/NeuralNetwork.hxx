@@ -38,7 +38,6 @@ namespace NeuralNetworks
 		void LoadWeights(std::ifstream&);
 		void LoadInfo(std::ifstream&);
 
-
 	private:
 
 		Layers layers_;

@@ -148,7 +148,6 @@ void GetXORTrainingData(TrainingSet& trainingData, std::vector<Targets>& targetS
 	targets[0] = 0;
 	trainingData.push_back(Inputs(inputs));
 	targetSet.push_back(targets);
-
 }
 
 int NeuralNetsXOR()
