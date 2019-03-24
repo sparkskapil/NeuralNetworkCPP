@@ -4,7 +4,8 @@
 #include <string>
 #include <fstream>
 #include "Matrix.h"
-#include "NeuralNetwork.hxx"
+#include "CNeuralNetworkFactory.h"
+#include "NeuralNetwork.hxx"				//just to print output
 
 using namespace NeuralNetworks;
 ///==================================================
@@ -153,7 +154,7 @@ void GetXORTrainingData(TrainingSet& trainingData, std::vector<Targets>& targetS
 int NeuralNetsXOR()
 {
 	std::vector<int> neuronCounts = { 2,4,1 };
-	NeuralNetwork nn(neuronCounts);
+	INeuralNetwork* nn = CNeuralNetworkFactory::GetNeuralNetwork(neuronCounts);
 	Inputs inputs(2);
 	Targets targets(1);
 	char ch = ' ';
@@ -162,30 +163,30 @@ int NeuralNetsXOR()
 	std::vector<Targets> targetSet;
 	GetXORTrainingData(trainingData,targetSet);
 
-	nn.SetLearningRate(0.2);
-	nn.SetErrorThreshold(0.05);
-	nn.fit(trainingData, targetSet);
+	nn->SetLearningRate(0.2);
+	nn->SetErrorThreshold(0.05);
+	nn->fit(trainingData, targetSet);
 
 	system("cls");
 	inputs[0] = 0;
 	inputs[1] = 0;
-	nn.FeedForward(inputs);
-	nn.PrintOutput();
+	nn->FeedForward(inputs);
+	dynamic_cast<NeuralNetwork*>(nn)->PrintOutput();
 
 	inputs[0] = 0;
 	inputs[1] = 1;
-	nn.FeedForward(inputs);
-	nn.PrintOutput();
+	nn->FeedForward(inputs);
+	dynamic_cast<NeuralNetwork*>(nn)->PrintOutput();
 
 	inputs[0] = 1;
 	inputs[1] = 0;
-	nn.FeedForward(inputs);
-	nn.PrintOutput();
+	nn->FeedForward(inputs);
+	dynamic_cast<NeuralNetwork*>(nn)->PrintOutput();
 
 	inputs[0] = 1;
 	inputs[1] = 1;
-	nn.FeedForward(inputs);
-	nn.PrintOutput();
+	nn->FeedForward(inputs);
+	dynamic_cast<NeuralNetwork*>(nn)->PrintOutput();
 	std::cin.get();
 	return 0;
 }
